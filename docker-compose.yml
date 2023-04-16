@@ -1,0 +1,33 @@
+version: "3"
+services:
+  app:
+    build: ./backend
+    depends_on:
+      - database
+    ports:
+      - '3000:3000'
+    environment:
+      PSQL_HOST: database
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      PORT: 3000
+      SECRET: teste
+  client:
+    build: ./frontend
+    image: react_client
+    links:
+      - app
+    ports:
+      - 80:80
+    command: npm run preview --host
+    env_file:
+      - ./frontend/.env
+  database:
+    image: postgres:9.6.8-alpine
+    volumes:
+      - database:/var/lib/postgresql/data
+    ports:
+      - '3030:5432'
+volumes:
+  database:
